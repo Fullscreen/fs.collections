@@ -15,7 +15,10 @@
     "bower_components",
     "src",
     "test",
-    "tests"
+    "tests",
+    "gulpfile.js",
+    "karma.conf.js",
+    "karma.watch.js"
   ],
   "devDependencies": {
     "angular-mocks": ">1.2.0"
