@@ -1,6 +1,6 @@
 {
   "name": "fs.collections",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Backbone style models and collections for AngularJS",
   "main": "index.js",
   "scripts": {
