@@ -1,0 +1,23 @@
+{
+  "name": "fs.collections",
+  "version": "1.0.0",
+  "description": "Backbone style models and collections for AngularJS",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp",
+    "test": "./node_modules/karma/bin/karma start karma.conf.js",
+    "watch": "./node_modules/karma/bin/karma start karma.watch.js"
+  },
+  "author": "Paul Sweeney <paul@fullscreen.net>",
+  "license": "MIT",
+  "dependencies": {
+    "coffee-script": "1.7.1",
+    "gulp": "^3.8.7",
+    "gulp-coffee": "^2.1.1",
+    "gulp-concat": "^2.3.4",
+    "karma": "0.12.16",
+    "karma-coffee-preprocessor": "0.2.1",
+    "karma-jasmine": "0.1.5",
+    "karma-phantomjs-launcher": "0.1.4"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "fs.collections",
+  "main": "dest/index.js",
+  "version": "1.0.0",
+  "authors": [
+    "Paul Sweeney <paul@fullscreen.net"
+  ],
+  "moduleType": [
+    "globals"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "angular-mocks": "~1.2.0"
+  },
+  "dependencies": {
+    "underscore": "~1.6.0",
+    "angular": "~1.2.0"
+  }
+}
