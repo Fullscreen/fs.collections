@@ -8,5 +8,5 @@ gulp.task('default', function() {
   ])
   .pipe(require('gulp-coffee')())
   .pipe(require('gulp-concat')('index.js'))
-  .pipe(gulp.dest('dest'))
+  .pipe(gulp.dest('.'))
 })

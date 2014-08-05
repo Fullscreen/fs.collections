@@ -9,7 +9,7 @@ In your Angular project, run `bower install --save fs.collections` to save the
 module. Then, in your HTML, add:
 
 ``` html
-<script src="/path/to/bower_components/fs.collections/dest/index.js"></script>
+<script src="/path/to/bower_components/fs.collections/index.js"></script>
 ```
 
 And lastly, in your Angular module, include `fs.collections` as a dependency:

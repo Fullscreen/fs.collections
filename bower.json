@@ -1,6 +1,6 @@
 {
   "name": "fs.collections",
-  "main": "dest/index.js",
+  "main": "index.js",
   "version": "1.0.0",
   "authors": [
     "Paul Sweeney <paul@fullscreen.net"
