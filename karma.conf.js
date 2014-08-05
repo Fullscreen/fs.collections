@@ -6,11 +6,12 @@ module.exports = function(config) {
       "bower_components/angular-mocks/angular-mocks.js",
       "bower_components/underscore/underscore.js",
       "src/index.coffee",
-      "src/**/*.coffee",
+      "src/collection.coffee",
+      "src/model.coffee",
       "tests/**/*.coffee"
     ],
     preprocessors: {
-      "src/**/*.coffee": "coffee",
+      "src/*.coffee": "coffee",
       "tests/**/*.coffee": "coffee"
     },
     port: 8080,

@@ -6,7 +6,8 @@ var gulp = require('gulp')
 
 var files = [
   "src/index.coffee",
-  "src/**/*.coffee",
+  "src/collection.coffee",
+  "src/model.coffee"
 ]
 
 gulp.task('build', function() {
