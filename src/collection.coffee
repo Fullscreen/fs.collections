@@ -25,7 +25,7 @@ app.factory 'BaseCollection', ($http, BaseModel) ->
       options.data   = _.extend({}, options.data) if options.data
 
       @currentlyFetching = true
-      req = $http(options).then(_.bind(@parse, @)).then (models) =>
+      req = $http(options).success(_.bind(@parse, @)).then (models) =>
         @add(models)
         @
 
