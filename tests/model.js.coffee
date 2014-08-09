@@ -86,3 +86,8 @@ describe "The enigmatic BaseModel", ->
     # Expose default attributes
     expect(instance.attributes.baz).toBe('qux')
 
+  it "should copy attributes instead of referencing them", ->
+    attrs = {publish_at: undefined}
+    instance = new Model attrs, defaults: {publish_at: 'bar'}
+    expect(attrs.publish_at).toBe(undefined)
+

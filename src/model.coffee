@@ -10,6 +10,7 @@ app.factory 'BaseModel', ($http) ->
     constructor: (attrs = {}, opts = {}) ->
       @[key] = value for key, value of opts
       @attributes = {}
+      attrs = _.extend({}, attrs)
       attrs = _.defaults(attrs, _.result(@, 'defaults'))
       @set(attrs)
 
