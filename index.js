@@ -265,6 +265,7 @@
           this[key] = value;
         }
         this.attributes = {};
+        attrs = _.extend({}, attrs);
         attrs = _.defaults(attrs, _.result(this, 'defaults'));
         this.set(attrs);
       }
