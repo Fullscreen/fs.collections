@@ -26,6 +26,7 @@ app.factory 'BaseCollection', ($http, BaseModel) ->
 
       @currentlyFetching = true
       req = $http(options).then(_.bind(@parse, @)).then (models) =>
+        @reset() if options.reset
         @add(models)
         @
 
