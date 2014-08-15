@@ -51,6 +51,9 @@
         this.currentlyFetching = true;
         req = $http(options).then(_.bind(this.parse, this)).then((function(_this) {
           return function(models) {
+            if (options.reset) {
+              _this.reset();
+            }
             _this.add(models);
             return _this;
           };
