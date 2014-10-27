@@ -4,7 +4,7 @@ module.exports = function(config) {
     files: [
       "bower_components/angular/angular.js",
       "bower_components/angular-mocks/angular-mocks.js",
-      "bower_components/underscore/underscore.js",
+      "bower_components/lodash/dist/lodash.underscore.js",
       "src/index.coffee",
       "src/collection.coffee",
       "src/model.coffee",
