@@ -1,6 +1,6 @@
 app = angular.module('fs.collections')
 
-app.factory 'BaseModel', ($http) ->
+app.factory 'BaseModel', ($http, $rootScope) ->
   class BaseModel
     parse: (res) -> res.data
 
@@ -8,11 +8,23 @@ app.factory 'BaseModel', ($http) ->
       _(Object.keys(attrs)).contains(@idAttribute)
 
     constructor: (attrs = {}, opts = {}) ->
+      @_eventBus = $rootScope.$new()
+      @_eventBus.destuctors = []
+      @_eventBus.$on 'destroy', => @_eventBus.destuctors.forEach (fn) -> fn()
+
       @[key] = value for key, value of opts
       @attributes = {}
       attrs = _.extend({}, attrs)
       attrs = _.defaults(attrs, _.result(@, 'defaults'))
       @set(attrs)
+
+    trigger: (args...) -> @_eventBus.$broadcast.apply(@_eventBus, args)
+
+    # Wrap the bound callback to strip off the `scope` arg, as we don't want to
+    # expose that publicly
+    on: (event, cb) ->
+      @_eventBus.destuctors.push @_eventBus.$on event, (scope, e, args...) ->
+        cb.apply(@, [e].concat(args))
 
     has: (key) -> @attributes[key]?
 
@@ -29,6 +41,8 @@ app.factory 'BaseModel', ($http) ->
 
       @id = attrs[@idAttribute] if @_hasIdAttribute(attrs)
       @attributes[aKey] = aVal for aKey, aVal of attrs
+      @trigger('change', @, attrs)
+      _(attrs).each (val, key) => @trigger("change:#{key}", @, val)
       @
 
     urlRoot: ''
@@ -72,7 +86,6 @@ app.factory 'BaseModel', ($http) ->
           method: 'DELETE'
           url: @url('delete')
         $http(opts).then(_(@parse).bind(@))
-
 
   # From Backbone source: https://github.com/jashkenas/backbone/blob/master/backbone.js#L571
   # Underscore methods that we want to implement on the Model.
