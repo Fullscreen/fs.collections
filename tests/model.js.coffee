@@ -1,12 +1,14 @@
 describe "The enigmatic BaseModel", ->
+  $rootScope = undefined
   Model = undefined
   http = undefined
 
   beforeEach ->
     module('fs.collections')
-    inject (BaseModel, $httpBackend) ->
-      Model = BaseModel
-      http = $httpBackend
+    inject (_$rootScope_, _BaseModel_, _$httpBackend_) ->
+      $rootScope = _$rootScope_
+      Model = _BaseModel_
+      http = _$httpBackend_
 
   it "should build a URL based on its ID and URLRoot", ->
     models = [
@@ -90,4 +92,26 @@ describe "The enigmatic BaseModel", ->
     attrs = {publish_at: undefined}
     instance = new Model attrs, defaults: {publish_at: 'bar'}
     expect(attrs.publish_at).toBe(undefined)
+
+  it "should fire an event when a model's attributes change", ->
+    model = new Model({foo: 'bar', a: 1})
+    changeSpy = jasmine.createSpy('change')
+    model.on 'change', changeSpy
+
+    model.set({foo: 'baz'})
+    $rootScope.$digest()
+    expect(changeSpy).toHaveBeenCalledWith(model, {foo: 'baz'})
+
+    model.set('foo', 'omg')
+    $rootScope.$digest()
+    expect(changeSpy).toHaveBeenCalledWith(model, {foo: 'omg'})
+
+  it "should fire an event when a model individual attribute changes", ->
+    model = new Model({foo: 'bar', a: 1})
+    changeSpy = jasmine.createSpy('change:attr')
+    model.on 'change:foo', changeSpy
+
+    model.set({foo: 'baz'})
+    $rootScope.$digest()
+    expect(changeSpy).toHaveBeenCalledWith(model, 'baz')
 

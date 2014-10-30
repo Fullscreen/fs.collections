@@ -428,11 +428,12 @@ describe "The dependable BaseCollection", ->
     c = id: 3, foo: 'qux', dingus: true
     instance = new Collection([a, b, c])
     clone = instance.clone()
+    toAttrs = (m) -> m.attributes
 
     # we want to check that the two are in fact, different object instances
     expect(instance == clone).toBe(false)
     # guaruntee that the instances have the same properties
-    expect(instance.models).toEqual(clone.models)
+    expect(instance.models.map(toAttrs)).toEqual(clone.models.map(toAttrs))
     expect(instance.opts).toEqual(clone.opts)
     # ensure that we aren't just copying over models to the new collection
     expect(instance.models[0] == clone.models[0]).not.toBe(true)
