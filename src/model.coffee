@@ -9,8 +9,10 @@ app.factory 'BaseModel', ($http, $rootScope) ->
 
     constructor: (attrs = {}, opts = {}) ->
       @_eventBus = $rootScope.$new()
-      @_eventBus.destuctors = []
-      @_eventBus.$on '$destroy', => @_eventBus.destuctors.forEach (fn) -> fn()
+      @_eventBus.destuctors = {}
+      @_eventBus.$on '$destroy', =>
+        _(@_eventBus.destuctors).each (callbacks, event) ->
+          callbacks.forEach (obj) -> obj.unwatch()
 
       @[key] = value for key, value of opts
       @attributes = {}
@@ -23,8 +25,22 @@ app.factory 'BaseModel', ($http, $rootScope) ->
     # Wrap the bound callback to strip off the `scope` arg, as we don't want to
     # expose that publicly
     on: (event, cb) ->
-      @_eventBus.destuctors.push @_eventBus.$on event, (scope, e, args...) ->
-        cb.apply(@, [e].concat(args))
+      @_eventBus.destuctors[event] = [] unless @_eventBus.destuctors[event]
+      queue = @_eventBus.destuctors[event]
+      wrapped = (scope, e, args...) -> cb.apply(@, [e].concat(args))
+
+      queue.push
+        unwatch: @_eventBus.$on(event, wrapped)
+        original: cb
+
+    off: (event, cb) ->
+      callbacks = @_eventBus.destuctors[event] || []
+      matches = []
+
+      if cb then matches = callbacks.filter (obj) -> obj.original is cb
+      else       matches = callbacks
+
+      matches.forEach (obj) -> obj.unwatch()
 
     has: (key) -> @attributes[key]?
 
