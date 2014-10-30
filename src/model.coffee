@@ -42,6 +42,13 @@ app.factory 'BaseModel', ($http, $rootScope) ->
 
       matches.forEach (obj) -> obj.unwatch()
 
+    once: (event, cb) ->
+      wrapped = (args...) =>
+        @off(event, wrapped)
+        cb.apply(@, args)
+
+      @on event, wrapped
+
     has: (key) -> @attributes[key]?
 
     get: (key) -> @attributes[key]

@@ -152,3 +152,14 @@ describe "The enigmatic BaseModel", ->
     expect(spy1.callCount).toBe(1)
     expect(spy2.callCount).toBe(1)
 
+  it "should let you bind a single-run callback", ->
+    model = new Model({foo: 'bar', a: 1})
+    changeSpy = jasmine.createSpy('change')
+    model.once 'change', changeSpy
+
+    model.set({foo: 'abc'})
+    model.set({foo: 'baz'})
+
+    expect(changeSpy.callCount).toBe(1)
+    expect(changeSpy.mostRecentCall.args.pop()).toEqual({foo: 'abc'})
+
