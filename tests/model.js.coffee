@@ -121,3 +121,34 @@ describe "The enigmatic BaseModel", ->
     model.destroy({some: 'options'})
     expect(destroySpy).toHaveBeenCalledWith(model, undefined, {some: 'options'})
 
+  it "should let you unbind an individual callback", ->
+    model = new Model({foo: 'bar', a: 1})
+    changeSpy = jasmine.createSpy('change')
+    model.on 'change', changeSpy
+
+    model.set({some: 'options'})
+    model.off('change', changeSpy)
+    model.set({some: 'options'})
+
+    expect(changeSpy.callCount).toBe(1)
+
+  it "should let you unbind all callbacks for an event", ->
+    model = new Model({foo: 'bar', a: 1})
+    spy1 = jasmine.createSpy('change1')
+    spy2 = jasmine.createSpy('change2')
+
+    model.on 'change', spy1
+    model.on 'change', spy2
+
+    model.set({some: 'options'})
+
+    expect(spy1.callCount).toBe(1)
+    expect(spy2.callCount).toBe(1)
+
+    model.off 'change'
+
+    model.set({some: 'options'})
+
+    expect(spy1.callCount).toBe(1)
+    expect(spy2.callCount).toBe(1)
+
