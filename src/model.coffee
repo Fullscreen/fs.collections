@@ -81,11 +81,14 @@ app.factory 'BaseModel', ($http, $rootScope) ->
 
     destroy: (opts = {}) ->
       if @collection then @collection.remove(@)
-      unless @isNew()
+      destroy = () => @_eventBus.$destroy()
+
+      if @isNew() then destroy()
+      else
         _(opts).defaults
           method: 'DELETE'
           url: @url('delete')
-        $http(opts).then(_(@parse).bind(@))
+        $http(opts).then(_(@parse).bind(@)).then(destroy)
 
   # From Backbone source: https://github.com/jashkenas/backbone/blob/master/backbone.js#L571
   # Underscore methods that we want to implement on the Model.

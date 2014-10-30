@@ -103,7 +103,6 @@ describe "The enigmatic BaseModel", ->
     expect(changeSpy).toHaveBeenCalledWith(model, {foo: 'baz'})
 
     model.set('foo', 'omg')
-    $rootScope.$digest()
     expect(changeSpy).toHaveBeenCalledWith(model, {foo: 'omg'})
 
   it "should fire an event when a model individual attribute changes", ->
@@ -112,6 +111,5 @@ describe "The enigmatic BaseModel", ->
     model.on 'change:foo', changeSpy
 
     model.set({foo: 'baz'})
-    $rootScope.$digest()
     expect(changeSpy).toHaveBeenCalledWith(model, 'baz')
 
