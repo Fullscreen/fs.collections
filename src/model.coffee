@@ -10,7 +10,7 @@ app.factory 'BaseModel', ($http, $rootScope) ->
     constructor: (attrs = {}, opts = {}) ->
       @_eventBus = $rootScope.$new()
       @_eventBus.destuctors = []
-      @_eventBus.$on 'destroy', => @_eventBus.destuctors.forEach (fn) -> fn()
+      @_eventBus.$on '$destroy', => @_eventBus.destuctors.forEach (fn) -> fn()
 
       @[key] = value for key, value of opts
       @attributes = {}
@@ -81,7 +81,9 @@ app.factory 'BaseModel', ($http, $rootScope) ->
 
     destroy: (opts = {}) ->
       if @collection then @collection.remove(@)
-      destroy = () => @_eventBus.$destroy()
+      destroy = () =>
+        @trigger('destroy', @, @collection, opts)
+        @_eventBus.$destroy()
 
       if @isNew() then destroy()
       else

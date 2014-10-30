@@ -113,3 +113,11 @@ describe "The enigmatic BaseModel", ->
     model.set({foo: 'baz'})
     expect(changeSpy).toHaveBeenCalledWith(model, 'baz')
 
+  it "should fire an event when a model is destroyed", ->
+    model = new Model({foo: 'bar', a: 1})
+    destroySpy = jasmine.createSpy('destroy')
+    model.on 'destroy', destroySpy
+
+    model.destroy({some: 'options'})
+    expect(destroySpy).toHaveBeenCalledWith(model, undefined, {some: 'options'})
+
