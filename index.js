@@ -244,7 +244,7 @@
 
   app = angular.module('fs.collections');
 
-  app.factory('BaseModel', function($http) {
+  app.factory('BaseModel', function($http, $rootScope) {
     var BaseModel, modelMethods;
     BaseModel = (function() {
       BaseModel.prototype.parse = function(res) {
@@ -263,6 +263,17 @@
         if (opts == null) {
           opts = {};
         }
+        this._eventBus = $rootScope.$new();
+        this._eventBus.destuctors = {};
+        this._eventBus.$on('$destroy', (function(_this) {
+          return function() {
+            return _(_this._eventBus.destuctors).each(function(callbacks, event) {
+              return callbacks.forEach(function(obj) {
+                return obj.unwatch();
+              });
+            });
+          };
+        })(this));
         for (key in opts) {
           value = opts[key];
           this[key] = value;
@@ -272,6 +283,58 @@
         attrs = _.defaults(attrs, _.result(this, 'defaults'));
         this.set(attrs);
       }
+
+      BaseModel.prototype.trigger = function() {
+        var args;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        return this._eventBus.$broadcast.apply(this._eventBus, args);
+      };
+
+      BaseModel.prototype.on = function(event, cb) {
+        var queue, wrapped;
+        if (!this._eventBus.destuctors[event]) {
+          this._eventBus.destuctors[event] = [];
+        }
+        queue = this._eventBus.destuctors[event];
+        wrapped = function() {
+          var args, e, scope;
+          scope = arguments[0], e = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+          return cb.apply(this, [e].concat(args));
+        };
+        return queue.push({
+          unwatch: this._eventBus.$on(event, wrapped),
+          original: cb
+        });
+      };
+
+      BaseModel.prototype.off = function(event, cb) {
+        var callbacks, matches;
+        callbacks = this._eventBus.destuctors[event] || [];
+        matches = [];
+        if (cb) {
+          matches = callbacks.filter(function(obj) {
+            return obj.original === cb;
+          });
+        } else {
+          matches = callbacks;
+        }
+        return matches.forEach(function(obj) {
+          return obj.unwatch();
+        });
+      };
+
+      BaseModel.prototype.once = function(event, cb) {
+        var wrapped;
+        wrapped = (function(_this) {
+          return function() {
+            var args;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            _this.off(event, wrapped);
+            return cb.apply(_this, args);
+          };
+        })(this);
+        return this.on(event, wrapped);
+      };
 
       BaseModel.prototype.has = function(key) {
         return this.attributes[key] != null;
@@ -299,6 +362,12 @@
           aVal = attrs[aKey];
           this.attributes[aKey] = aVal;
         }
+        this.trigger('change', this, attrs);
+        _(attrs).each((function(_this) {
+          return function(val, key) {
+            return _this.trigger("change:" + key, _this, val);
+          };
+        })(this));
         return this;
       };
 
@@ -357,18 +426,27 @@
       };
 
       BaseModel.prototype.destroy = function(opts) {
+        var destroy;
         if (opts == null) {
           opts = {};
         }
         if (this.collection) {
           this.collection.remove(this);
         }
-        if (!this.isNew()) {
+        destroy = (function(_this) {
+          return function() {
+            _this.trigger('destroy', _this, _this.collection, opts);
+            return _this._eventBus.$destroy();
+          };
+        })(this);
+        if (this.isNew()) {
+          return destroy();
+        } else {
           _(opts).defaults({
             method: 'DELETE',
             url: this.url('delete')
           });
-          return $http(opts).then(_(this.parse).bind(this));
+          return $http(opts).then(_(this.parse).bind(this)).then(destroy);
         }
       };
 
