@@ -1,6 +1,6 @@
 app = angular.module('fs.collections')
 
-app.factory 'BaseCollection', ($http, BaseModel) ->
+app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
   class BaseCollection
     model: BaseModel
     currentlyFetching: false
@@ -146,3 +146,4 @@ app.factory 'BaseCollection', ($http, BaseModel) ->
       return _[method](@models, iterator, context)
 
   return BaseCollection
+]

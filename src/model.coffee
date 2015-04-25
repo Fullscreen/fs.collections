@@ -1,6 +1,6 @@
 app = angular.module('fs.collections')
 
-app.factory 'BaseModel', ($http, $rootScope) ->
+app.factory 'BaseModel', ['$http', '$rootScope', ($http, $rootScope) ->
   class BaseModel
     parse: (res) -> res.data
 
@@ -133,3 +133,4 @@ app.factory 'BaseModel', ($http, $rootScope) ->
       _[method].apply(_, args)
 
   return BaseModel
+]
