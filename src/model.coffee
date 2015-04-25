@@ -62,10 +62,17 @@ app.factory 'BaseModel', ($http, $rootScope) ->
         attrs = {}
         attrs[key] = val
 
+      changed = {}
+
       @id = attrs[@idAttribute] if @_hasIdAttribute(attrs)
-      @attributes[aKey] = aVal for aKey, aVal of attrs
-      @trigger('change', @, attrs)
-      _(attrs).each (val, key) => @trigger("change:#{key}", @, val)
+
+      _(attrs).each (aVal, aKey) =>
+        changed[aKey] = aVal if @attributes[aKey] isnt aVal
+        @attributes[aKey] = aVal
+
+      @trigger('change', @, changed)
+      _(changed).each (val, key) => @trigger("change:#{key}", @, val)
+
       @
 
     urlRoot: ''
