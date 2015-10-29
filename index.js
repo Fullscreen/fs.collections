@@ -17,17 +17,29 @@
 
         BaseCollection.prototype.currentlyFetching = false;
 
-        function BaseCollection(models, opts) {
-          var key, ref, value;
-          this.opts = opts;
-          ref = this.opts;
-          for (key in ref) {
-            value = ref[key];
-            this[key] = value;
+        function BaseCollection(models, opts1) {
+          this.opts = opts1;
+          if (this.opts) {
+            if (this.opts.model) {
+              this.model = this.opts.model;
+            }
+            if (this.opts.url) {
+              this.url = this.opts.url;
+            }
+            if (this.opts.sort) {
+              this.sort = this.opts.sort;
+            }
+            if (this.opts.comparator) {
+              this.comparator = this.opts.comparator;
+            }
+            if (this.opts.parse && typeof this.opts.parse === 'function') {
+              this.parse = this.opts.parse;
+              delete this.opts.parse;
+            }
           }
           this.models = [];
           this.length = 0;
-          this.add(models);
+          this.add(models, this.opts);
         }
 
         BaseCollection.prototype.url = function() {};
@@ -39,6 +51,7 @@
         BaseCollection.prototype.fetch = function(options) {
           var defaults, req;
           defaults = {
+            parse: true,
             method: 'GET',
             url: _(this).result('url')
           };
@@ -50,12 +63,12 @@
             options.data = _.extend({}, options.data);
           }
           this.currentlyFetching = true;
-          req = $http(options).then(_.bind(this.parse, this)).then((function(_this) {
+          req = $http(options).then((function(_this) {
             return function(models) {
               if (options.reset) {
                 _this.reset();
               }
-              _this.add(models);
+              _this.add(models, options);
               return _this;
             };
           })(this));
@@ -106,19 +119,22 @@
 
         BaseCollection.prototype.add = function(models, options) {
           var added, insertAt, isSingular;
-          if (!models) {
-            return;
-          }
           options = _.extend({
             sort: true
           }, options);
+          if (options.parse) {
+            models = this.parse(models);
+          }
+          if (!models) {
+            return;
+          }
           isSingular = !_(models).isArray();
           models = isSingular ? [models] : models.slice();
           added = [];
           insertAt = typeof options.at === 'undefined' ? this.length : options.at;
           models.forEach((function(_this) {
             return function(model) {
-              model = _this._prepareModel(model);
+              model = _this._prepareModel(model, options);
               if (_this.get(model.id) == null) {
                 added.push(model);
                 _this.length++;
@@ -137,9 +153,9 @@
           }
         };
 
-        BaseCollection.prototype.create = function(attrs) {
+        BaseCollection.prototype.create = function(attrs, opts) {
           var instance;
-          instance = this.add(attrs);
+          instance = this.add(attrs, opts);
           if (instance) {
             return instance.save();
           }
@@ -171,15 +187,16 @@
           }
         };
 
-        BaseCollection.prototype._prepareModel = function(attrs) {
+        BaseCollection.prototype._prepareModel = function(attrs, options) {
           var model;
+          options = _.extend({
+            collection: this
+          }, options);
           if (attrs instanceof this.model) {
             model = attrs;
             model.collection = this;
           } else {
-            model = new this.model(attrs, {
-              collection: this
-            });
+            model = new this.model(attrs, options);
           }
           return model;
         };
@@ -251,7 +268,11 @@
       var BaseModel, modelMethods;
       BaseModel = (function() {
         BaseModel.prototype.parse = function(res) {
-          return res.data;
+          if (res.status && res.headers) {
+            return res.data;
+          } else {
+            return res;
+          }
         };
 
         BaseModel.prototype._hasIdAttribute = function(attrs) {
@@ -259,12 +280,14 @@
         };
 
         function BaseModel(attrs, opts) {
-          var key, value;
           if (attrs == null) {
             attrs = {};
           }
           if (opts == null) {
             opts = {};
+          }
+          if (opts.parse) {
+            attrs = this.parse(attrs);
           }
           this._eventBus = $rootScope.$new();
           this._eventBus.destuctors = {};
@@ -277,9 +300,17 @@
               });
             };
           })(this));
-          for (key in opts) {
-            value = opts[key];
-            this[key] = value;
+          if (opts.collection) {
+            this.collection = opts.collection;
+          }
+          if (opts.urlRoot) {
+            this.urlRoot = opts.urlRoot;
+          }
+          if (opts.idAttribute) {
+            this.idAttribute = opts.idAttribute;
+          }
+          if (opts.defaults) {
+            this.defaults = opts.defaults;
           }
           this.attributes = {};
           attrs = _.extend({}, attrs);

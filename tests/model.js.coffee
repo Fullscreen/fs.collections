@@ -173,3 +173,7 @@ describe "The enigmatic BaseModel", ->
     expect(changeSpy.callCount).toBe(1)
     expect(changeSpy.mostRecentCall.args.pop()).toEqual({foo: 'abc'})
 
+  it "should parse data directly if asked", ->
+    mockData = {foo: 'bar', a: 1}
+    model = new Model(mockData, {parse: true})
+    expect(model.toJSON()).toEqual(mockData)

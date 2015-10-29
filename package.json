@@ -1,6 +1,6 @@
 {
   "name": "fs.collections",
-  "version": "1.3.1",
+  "version": "2.0.0-beta.0",
   "description": "Backbone style models and collections for AngularJS",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,13 @@
     "watch": "./node_modules/karma/bin/karma start karma.watch.js"
   },
   "author": "Paul Sweeney <paul@fullscreen.net>",
+  "repository": "git@github.com:Fullscreen/fs.collections.git",
+  "contributors": [
+    {
+      "name": "Patrick Weygand",
+      "email": "patrick.weygand@gmail.com"
+    }
+  ],
   "license": "MIT",
   "dependencies": {
     "coffee-script": "1.7.1",
@@ -20,5 +27,8 @@
     "karma-coffee-preprocessor": "0.2.1",
     "karma-jasmine": "0.1.5",
     "karma-phantomjs-launcher": "0.1.4"
+  },
+  "devDependencies": {
+    "karma-chrome-launcher": "^0.2.1"
   }
 }
