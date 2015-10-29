@@ -2,19 +2,28 @@ app = angular.module('fs.collections')
 
 app.factory 'BaseModel', ['$http', '$rootScope', ($http, $rootScope) ->
   class BaseModel
-    parse: (res) -> res.data
+    parse: (res) ->
+      if res.status && res.headers
+        res.data
+      else
+        res
 
     _hasIdAttribute: (attrs) ->
       _(Object.keys(attrs)).contains(@idAttribute)
 
     constructor: (attrs = {}, opts = {}) ->
+      attrs = @parse(attrs) if opts.parse
       @_eventBus = $rootScope.$new()
       @_eventBus.destuctors = {}
       @_eventBus.$on '$destroy', =>
         _(@_eventBus.destuctors).each (callbacks, event) ->
           callbacks.forEach (obj) -> obj.unwatch()
 
-      @[key] = value for key, value of opts
+      @collection = opts.collection if opts.collection
+      @urlRoot = opts.urlRoot if opts.urlRoot
+      @idAttribute = opts.idAttribute if opts.idAttribute
+      @defaults = opts.defaults if opts.defaults
+
       @attributes = {}
       attrs = _.extend({}, attrs)
       attrs = _.defaults(attrs, _.result(@, 'defaults'))

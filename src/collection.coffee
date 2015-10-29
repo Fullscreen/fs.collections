@@ -6,10 +6,17 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
     currentlyFetching: false
 
     constructor: (models, @opts) ->
-      @[key] = value for key, value of @opts
+      if @opts
+        @model = @opts.model if @opts.model
+        @url = @opts.url if @opts.url
+        @sort = @opts.sort if @opts.sort
+        @comparator = @opts.comparator if @opts.comparator
+        if @opts.parse && typeof @opts.parse == 'function'
+          @parse = @opts.parse
+          delete @opts.parse
       @models = []
       @length = 0
-      @add models
+      @add models, @opts
 
     url: ->
 
@@ -17,6 +24,7 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
 
     fetch: (options) ->
       defaults =
+        parse: true
         method: 'GET'
         url: _(@).result('url')
 
@@ -25,9 +33,9 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
       options.data   = _.extend({}, options.data) if options.data
 
       @currentlyFetching = true
-      req = $http(options).then(_.bind(@parse, @)).then (models) =>
+      req = $http(options).then (models) =>
         @reset() if options.reset
-        @add(models)
+        @add(models, options)
         @
 
       req.finally => @currentlyFetching = false
@@ -54,16 +62,18 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
       if isSingular then removed[0] else removed
 
     add: (models, options) ->
+      options = _.extend({sort: true}, options)
+
+      models = @parse(models) if options.parse
       return unless models
 
-      options = _.extend({sort: true}, options)
       isSingular = ! _(models).isArray()
       models =  if isSingular then [models] else models.slice()
       added = []
       insertAt = if typeof options.at is 'undefined' then @length else options.at
 
       models.forEach (model) =>
-        model = @_prepareModel(model)
+        model = @_prepareModel(model, options)
 
         # Add this model unless we already have it in the collection
         unless @get(model.id)?
@@ -76,8 +86,8 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
 
       return if isSingular then added[0] else added
 
-    create: (attrs) ->
-      instance = @add(attrs)
+    create: (attrs, opts) ->
+      instance = @add(attrs, opts)
       instance.save() if instance
 
     clone: () ->
@@ -96,12 +106,13 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
       if @comparator then @models.sort(@comparator)
       else @models.sort (a, b) -> a.id - b.id
 
-    _prepareModel: (attrs) ->
+    _prepareModel: (attrs, options) ->
+      options = _.extend({collection: @}, options)
       if attrs instanceof @model
         model = attrs
         model.collection = @
       else
-        model = new @model(attrs, collection: @)
+        model = new @model(attrs, options)
       return model
 
     pluck: (attr) ->

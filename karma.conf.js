@@ -17,7 +17,7 @@ module.exports = function(config) {
     port: 8080,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['PhantomJS'],
+    browsers: ['Chrome'],
     reporters: ['progress'],
     singleRun: true
   });

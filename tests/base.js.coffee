@@ -5,7 +5,7 @@ describe "The dependable BaseCollection", ->
 
   class FakeModel
     constructor: (attrs) ->
-      @id = attrs.id if attrs.id
+      @id = attrs.id if attrs?.id
 
       # Spy on the constructor and fetch methods
       @spy = jasmine.createSpy()
@@ -33,11 +33,14 @@ describe "The dependable BaseCollection", ->
 
     expect(instance.models[3]).toBeUndefined()
 
-  it "should store options passed to it on the collection", ->
-    instance = new Collection [], {url: 'http://google.com'}
+  it "should store url, model options passed to it on the collection", ->
+    instance = new Collection [], {url: 'http://google.com', model: FakeModel, parse: true, fizz: 'buzz'}
 
     expect(instance.length).toBe(0)
     expect(instance.url).toBe('http://google.com')
+    expect(instance.model).toBe(FakeModel)
+    expect(instance.parse).not.toBe(true)
+    expect(instance.fizz).toBeUndefined()
 
   it "should initialize new models using its 'model' attribute", ->
     instance = new Collection [{id: 1}], model: FakeModel
@@ -189,20 +192,6 @@ describe "The dependable BaseCollection", ->
     expect(instance.last().get('bacon')).toBe('smoked')
     expect(removed).toEqual([])
 
-
-  it "should fetch models using its URL property", ->
-    instance = new Collection([], url: 'http://google.com')
-    a = id: 1, foo: 'bar'
-    b = id: 2, foo: 'baz'
-    backend.expectGET('http://google.com').respond 200, [a, b]
-
-    expect(instance.length).toBe(0)
-    instance.fetch()
-    backend.flush()
-
-    expect(instance.length).toBe(2)
-    expect(instance.get(1).get('foo')).toBe('bar')
-    expect(instance.get(2).get('foo')).toBe('baz')
 
   it "should fetch models using its URL property", ->
     instance = new Collection([], url: 'http://google.com')
@@ -445,3 +434,41 @@ describe "The dependable BaseCollection", ->
     instance = new Collection([a, b, c])
 
     expect(instance.toJSON()).toEqual([a, b, c])
+
+  it "should parse data from constructor if requested", ->
+    a = id: 1, foo: 'bar', dingus: true
+    b = id: 2, foo: 'bar', dingus: true
+    c = id: 3, foo: 'qux', dingus: true
+    spyOn(Collection.prototype, 'parse').andCallThrough()
+    instance = new Collection([a, b, c], {parse: true})
+    expect(instance.parse).toHaveBeenCalled()
+
+  it "should parse data from add if requested", ->
+    a = id: 1, foo: 'bar', dingus: true
+    b = id: 2, foo: 'bar', dingus: true
+    c = id: 3, foo: 'qux', dingus: true
+    spyOn(Collection.prototype, 'parse').andCallThrough()
+    instance = new Collection()
+    expect(instance.parse).not.toHaveBeenCalled()
+    instance.add([a, b, c], {parse: true})
+    expect(instance.parse).toHaveBeenCalled()
+
+  it "should parse Models using their parse method on fetch", ->
+    a = id: 1, foo: 'bar', dingus: true
+    b = id: 2, foo: 'bar', dingus: true
+    c = id: 3, foo: 'qux', dingus: true
+    mockurl = 'https://google.com'
+    class MockModel extends Model
+      parse: (res) ->
+        res.data
+    backend.expectGET(mockurl).respond([{data: a}, {data: b}, {data: c}])
+    instance = new Collection(undefined, {model: MockModel, url: mockurl})
+    instance.fetch()
+    backend.flush()
+    expect(instance.toJSON()).toEqual([a, b, c])
+
+  it "should allow passing options to add via create", ->
+    spyOn(Collection.prototype, 'add').andCallThrough()
+    instance = new Collection()
+    instance.create({asdf: 'fdfd'}, {parse: true, foo: 'baz'})
+    expect(instance.add).toHaveBeenCalledWith({asdf: 'fdfd'}, {parse: true, foo: 'baz'})
