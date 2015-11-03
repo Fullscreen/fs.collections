@@ -218,6 +218,32 @@ describe "The dependable BaseCollection", ->
     expect(instance.length).toBe(1)
     expect(instance.get(1).get('foo')).toBe('bar')
 
+  it "should merge fetched models by default", ->
+    a = id: 1, foo: 'bar'
+    b = id: 2, foo: 'baz'
+    instance = new Collection([a, b], url: 'http://google.com')
+    backend.expectGET('http://google.com').respond 200, [{id: 1, foo: 'buzz'}, b]
+
+    instance.fetch()
+    backend.flush()
+
+    expect(instance.length).toBe(2)
+    expect(instance.get(1).get('foo')).toBe('buzz')
+    expect(instance.get(2).get('foo')).toBe('baz')
+
+  it "should not merge fetched models when asked", ->
+    a = id: 1, foo: 'bar'
+    b = id: 2, foo: 'baz'
+    instance = new Collection([a, b], url: 'http://google.com')
+    backend.expectGET('http://google.com').respond 200, [{id: 1, foo: 'buzz'}, b]
+
+    instance.fetch({merge: false})
+    backend.flush()
+
+    expect(instance.length).toBe(2)
+    expect(instance.get(1).get('foo')).toBe('bar')
+    expect(instance.get(2).get('foo')).toBe('baz')
+
   it "should handle gnarly HTTP responses using its parse method", ->
     a = id: 1, foo: 'bar'
     b = id: 2, foo: 'baz'
@@ -321,11 +347,23 @@ describe "The dependable BaseCollection", ->
     a = id: 1, foo: 'bar'
     b = id: 2, foo: 'baz'
     c = id: 3, foo: 'qux'
+    instance.comparator = (a, b) -> return a.id - b.id
 
     instance.add([b, c, a])
 
     expect(instance.first().get('foo')).toBe('bar')
     expect(instance.last().get('foo')).toBe('qux')
+
+  it "should not sort unless a comparator is defined", ->
+    instance = new Collection([], url: 'http://google.com')
+    a = id: 1, foo: 'bar'
+    b = id: 2, foo: 'baz'
+    c = id: 3, foo: 'qux'
+
+    instance.add([b, c, a])
+
+    expect(instance.first().get('foo')).toBe('baz')
+    expect(instance.last().get('foo')).toBe('bar')
 
   it "should allow you to add models out of order", ->
     instance = new Collection([], url: 'http://google.com')
@@ -452,6 +490,18 @@ describe "The dependable BaseCollection", ->
     expect(instance.parse).not.toHaveBeenCalled()
     instance.add([a, b, c], {parse: true})
     expect(instance.parse).toHaveBeenCalled()
+
+  it "should merge models from add if requested", ->
+    a = id: 1, foo: 'bar'
+    b = id: 2, foo: 'baz'
+    instance = new Collection([a, b], url: 'http://google.com')
+
+    instance.add([{id: 1, foo: 'buzz'}, {id: 3, foo: 'fizz'}], {merge: true})
+
+    expect(instance.length).toBe(3)
+    expect(instance.get(1).get('foo')).toBe('buzz')
+    expect(instance.get(2).get('foo')).toBe('baz')
+    expect(instance.get(3).get('foo')).toBe('fizz')
 
   it "should parse Models using their parse method on fetch", ->
     a = id: 1, foo: 'bar', dingus: true

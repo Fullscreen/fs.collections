@@ -51,6 +51,7 @@
         BaseCollection.prototype.fetch = function(options) {
           var defaults, req;
           defaults = {
+            merge: true,
             parse: true,
             method: 'GET',
             url: _(this).result('url')
@@ -134,12 +135,16 @@
           insertAt = typeof options.at === 'undefined' ? this.length : options.at;
           models.forEach((function(_this) {
             return function(model) {
+              var colModel;
               model = _this._prepareModel(model, options);
-              if (_this.get(model.id) == null) {
+              colModel = _this.get(model.id);
+              if (colModel == null) {
                 added.push(model);
                 _this.length++;
                 _this.models.splice(insertAt, 0, model);
                 return insertAt++;
+              } else if (options.merge) {
+                return colModel.set(model.attributes);
               }
             };
           })(this));
@@ -180,10 +185,6 @@
         BaseCollection.prototype.sort = function() {
           if (this.comparator) {
             return this.models.sort(this.comparator);
-          } else {
-            return this.models.sort(function(a, b) {
-              return a.id - b.id;
-            });
           }
         };
 
