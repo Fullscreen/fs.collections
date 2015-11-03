@@ -24,6 +24,7 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
 
     fetch: (options) ->
       defaults =
+        merge: true
         parse: true
         method: 'GET'
         url: _(@).result('url')
@@ -76,11 +77,14 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
         model = @_prepareModel(model, options)
 
         # Add this model unless we already have it in the collection
-        unless @get(model.id)?
+        colModel = @get(model.id)
+        unless colModel?
           added.push(model)
           @length++
           @models.splice(insertAt, 0, model)
           insertAt++
+        else if options.merge
+          colModel.set(model.attributes)
 
       @sort() if options.sort
 
@@ -104,7 +108,6 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
 
     sort: ->
       if @comparator then @models.sort(@comparator)
-      else @models.sort (a, b) -> a.id - b.id
 
     _prepareModel: (attrs, options) ->
       options = _.extend({collection: @}, options)
