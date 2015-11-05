@@ -1,3 +1,5 @@
+# Considering using fscache? first see if you can simply put a cache header
+# on your api.
 angular.module('fs.collections').provider('fsCache', () ->
   cacheEnabled = false
   cacheTTL = 60000

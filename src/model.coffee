@@ -102,7 +102,10 @@ app.factory 'BaseModel', ['$http', '$rootScope', 'fsCache', ($http, $rootScope, 
       _.clone(@attributes)
 
     fetch: (options = {}) ->
-      opts = _.extend({}, options)
+      opts = _.extend({
+        cache: @cache
+        cacheTTL: @cacheTTL
+      }, options)
 
       _(opts).defaults
         method: 'GET'
