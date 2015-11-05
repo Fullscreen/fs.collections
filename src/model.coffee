@@ -1,7 +1,7 @@
 app = angular.module('fs.collections')
 
-app.factory 'BaseModel', ['$http', '$rootScope', ($http, $rootScope) ->
-  class BaseModel
+app.factory 'BaseModel', ['$http', '$rootScope', 'fsCache', ($http, $rootScope, fsCache) ->
+  class BaseModel extends fsCache
     parse: (res) ->
       if res.status && res.headers
         res.data
@@ -107,7 +107,10 @@ app.factory 'BaseModel', ['$http', '$rootScope', ($http, $rootScope) ->
       _(opts).defaults
         method: 'GET'
         url: _.result(@, 'url')
-      $http(opts).then(_(@parse).bind(@)).then(_(@set).bind(@))
+      $http(opts)
+        .then(() => @scheduleCacheTimeout(opts))
+        .then(_(@parse).bind(@))
+        .then(_(@set).bind(@))
 
     save: (options = {}) ->
       opts = _.extend({}, options)

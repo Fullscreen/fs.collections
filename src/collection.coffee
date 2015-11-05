@@ -1,7 +1,7 @@
 app = angular.module('fs.collections')
 
-app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
-  class BaseCollection
+app.factory 'BaseCollection', ['$http', 'BaseModel', 'fsCache', ($http, BaseModel, fsCache) ->
+  class BaseCollection extends fsCache
     model: BaseModel
     currentlyFetching: false
 
@@ -24,6 +24,8 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
 
     fetch: (options) ->
       defaults =
+        cache: @cache
+        cacheTTL: @cacheTTL
         merge: true
         parse: true
         method: 'GET'
@@ -35,6 +37,7 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
 
       @currentlyFetching = true
       req = $http(options).then (models) =>
+        @scheduleCacheTimeout(options)
         @reset() if options.reset
         @add(models, options)
         @

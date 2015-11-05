@@ -5,6 +5,7 @@ var gulp = require('gulp')
 
 var files = [
   "src/index.coffee",
+  "src/fsCache",
   "src/collection.coffee",
   "src/model.coffee"
 ]
