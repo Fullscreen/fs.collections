@@ -111,7 +111,10 @@ app.factory 'BaseModel', ['$http', '$rootScope', 'fsCache', ($http, $rootScope, 
         method: 'GET'
         url: _.result(@, 'url')
       $http(opts)
-        .then(() => @scheduleCacheTimeout(opts))
+        .then((resp) =>
+          @scheduleCacheTimeout(resp.config)
+          return resp
+        )
         .then(_(@parse).bind(@))
         .then(_(@set).bind(@))
 
@@ -122,7 +125,10 @@ app.factory 'BaseModel', ['$http', '$rootScope', 'fsCache', ($http, $rootScope, 
         method: if @isNew() then 'POST' else 'PUT'
         url: _.result(@, 'url')
         data: @toJSON()
-      $http(opts).then(_(@parse).bind(@)).then(_(@set).bind(@))
+      $http(opts).then((resp) =>
+        @_bustWithOpts(resp.config)
+        resp
+      ).then(_(@parse).bind(@)).then(_(@set).bind(@))
 
     destroy: (opts = {}) ->
       if @collection then @collection.remove(@)
@@ -135,7 +141,10 @@ app.factory 'BaseModel', ['$http', '$rootScope', 'fsCache', ($http, $rootScope, 
         _(opts).defaults
           method: 'DELETE'
           url: @url('delete')
-        $http(opts).then(_(@parse).bind(@)).then(destroy)
+        $http(opts)((resp) =>
+          @_bustWithOpts(resp.config)
+          resp
+        ).then(_(@parse).bind(@)).then(destroy)
 
   # From Backbone source: https://github.com/jashkenas/backbone/blob/master/backbone.js#L571
   # Underscore methods that we want to implement on the Model.

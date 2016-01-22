@@ -4,15 +4,76 @@
 }).call(this);
 
 (function() {
+  angular.module('fs.collections').provider('fsCache', function() {
+    var cacheEnabled, cacheTTL;
+    cacheEnabled = false;
+    cacheTTL = 60000;
+    this.setCacheTTL = function(ttl) {
+      return cacheTTL = ttl;
+    };
+    this.setCacheEnabled = function(isCacheEnabled) {
+      return cacheEnabled = isCacheEnabled;
+    };
+    this.$get = [
+      '$http', '$cacheFactory', '$timeout', function($http, $cacheFactory, $timeout) {
+        var buildURL, cacheDefault, fsCache;
+        cacheDefault = false;
+        if (cacheEnabled) {
+          cacheDefault = $cacheFactory('fs.collections');
+        }
+        buildURL = function(url, serializedParams) {
+          if (serializedParams.length > 0) {
+            url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
+          }
+          return url;
+        };
+        return fsCache = (function() {
+          function fsCache() {}
+
+          fsCache.prototype.cacheTimeout = null;
+
+          fsCache.prototype.cache = cacheDefault;
+
+          fsCache.prototype.cacheTTL = cacheTTL;
+
+          fsCache.prototype._bustWithOpts = function(options) {
+            return this.cache.remove(buildURL(options.url, options.paramSerializer(options.params)));
+          };
+
+          fsCache.prototype.scheduleCacheTimeout = function(options) {
+            if (options && options.cache && options.url) {
+              return this.cacheTimeout = $timeout(((function(_this) {
+                return function() {
+                  return _this._bustWithOpts(options);
+                };
+              })(this)), options.cacheTTL);
+            }
+          };
+
+          return fsCache;
+
+        })();
+      }
+    ];
+    return this;
+  });
+
+}).call(this);
+
+(function() {
   var app,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
     slice = [].slice;
 
   app = angular.module('fs.collections');
 
   app.factory('BaseCollection', [
-    '$http', 'BaseModel', function($http, BaseModel) {
+    '$http', 'BaseModel', 'fsCache', function($http, BaseModel, fsCache) {
       var BaseCollection, attributeMethods, methods;
-      BaseCollection = (function() {
+      BaseCollection = (function(superClass) {
+        extend(BaseCollection, superClass);
+
         BaseCollection.prototype.model = BaseModel;
 
         BaseCollection.prototype.currentlyFetching = false;
@@ -51,6 +112,8 @@
         BaseCollection.prototype.fetch = function(options) {
           var defaults, req;
           defaults = {
+            cache: this.cache,
+            cacheTTL: this.cacheTTL,
             merge: true,
             parse: true,
             method: 'GET',
@@ -66,6 +129,7 @@
           this.currentlyFetching = true;
           req = $http(options).then((function(_this) {
             return function(models) {
+              _this.scheduleCacheTimeout(models.config);
               if (options.reset) {
                 _this.reset();
               }
@@ -232,7 +296,7 @@
 
         return BaseCollection;
 
-      })();
+      })(fsCache);
       methods = ['forEach', 'each', 'map', 'collect', 'reduce', 'foldl', 'inject', 'reduceRight', 'foldr', 'find', 'detect', 'filter', 'select', 'reject', 'every', 'all', 'some', 'any', 'include', 'contains', 'invoke', 'max', 'min', 'toArray', 'size', 'first', 'head', 'take', 'initial', 'rest', 'tail', 'drop', 'last', 'without', 'difference', 'indexOf', 'shuffle', 'lastIndexOf', 'isEmpty', 'chain'];
       _.each(methods, function(method) {
         return BaseCollection.prototype[method] = function() {
@@ -260,14 +324,18 @@
 
 (function() {
   var app,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
     slice = [].slice;
 
   app = angular.module('fs.collections');
 
   app.factory('BaseModel', [
-    '$http', '$rootScope', function($http, $rootScope) {
+    '$http', '$rootScope', 'fsCache', function($http, $rootScope, fsCache) {
       var BaseModel, modelMethods;
-      BaseModel = (function() {
+      BaseModel = (function(superClass) {
+        extend(BaseModel, superClass);
+
         BaseModel.prototype.parse = function(res) {
           if (res.status && res.headers) {
             return res.data;
@@ -443,12 +511,20 @@
           if (options == null) {
             options = {};
           }
-          opts = _.extend({}, options);
+          opts = _.extend({
+            cache: this.cache,
+            cacheTTL: this.cacheTTL
+          }, options);
           _(opts).defaults({
             method: 'GET',
             url: _.result(this, 'url')
           });
-          return $http(opts).then(_(this.parse).bind(this)).then(_(this.set).bind(this));
+          return $http(opts).then((function(_this) {
+            return function(resp) {
+              _this.scheduleCacheTimeout(resp.config);
+              return resp;
+            };
+          })(this)).then(_(this.parse).bind(this)).then(_(this.set).bind(this));
         };
 
         BaseModel.prototype.save = function(options) {
@@ -462,7 +538,12 @@
             url: _.result(this, 'url'),
             data: this.toJSON()
           });
-          return $http(opts).then(_(this.parse).bind(this)).then(_(this.set).bind(this));
+          return $http(opts).then((function(_this) {
+            return function(resp) {
+              _this._bustWithOpts(resp.config);
+              return resp;
+            };
+          })(this)).then(_(this.parse).bind(this)).then(_(this.set).bind(this));
         };
 
         BaseModel.prototype.destroy = function(opts) {
@@ -486,13 +567,18 @@
               method: 'DELETE',
               url: this.url('delete')
             });
-            return $http(opts).then(_(this.parse).bind(this)).then(destroy);
+            return $http(opts)((function(_this) {
+              return function(resp) {
+                _this._bustWithOpts(resp.config);
+                return resp;
+              };
+            })(this)).then(_(this.parse).bind(this)).then(destroy);
           }
         };
 
         return BaseModel;
 
-      })();
+      })(fsCache);
       modelMethods = ['keys', 'values', 'pairs', 'invert', 'pick', 'omit'];
       _.each(modelMethods, function(method) {
         return BaseModel.prototype[method] = function() {

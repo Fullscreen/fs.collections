@@ -37,7 +37,7 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', 'fsCache', ($http, BaseMode
 
       @currentlyFetching = true
       req = $http(options).then (models) =>
-        @scheduleCacheTimeout(options)
+        @scheduleCacheTimeout(models.config)
         @reset() if options.reset
         @add(models, options)
         @
