@@ -522,3 +522,20 @@ describe "The dependable BaseCollection", ->
     instance = new Collection()
     instance.create({asdf: 'fdfd'}, {parse: true, foo: 'baz'})
     expect(instance.add).toHaveBeenCalledWith({asdf: 'fdfd'}, {parse: true, foo: 'baz'})
+
+  it "should allow passing options through on merge", ->
+    instance = new Collection()
+    mergable = {id: 'foo'}
+    m = instance.add(mergable)
+    spyOn(m, 'set')
+    opts = {merge: true, reset: false}
+    instance.add(mergable, opts)
+    opts.sort = true
+    expect(m.set).toHaveBeenCalledWith(mergable, opts)
+
+  it "should treat collections the same as models when adding", ->
+    instance = new Collection()
+    coll = new Collection({id: 'foo'})
+    m = instance.add(coll)
+    expect(m).toBe(coll)
+    expect(m.collection).toBe(instance)
