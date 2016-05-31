@@ -144,7 +144,7 @@
                 _this.models.splice(insertAt, 0, model);
                 return insertAt++;
               } else if (options.merge) {
-                return colModel.set(model.attributes);
+                return colModel.set(model.attributes, options);
               }
             };
           })(this));
@@ -193,7 +193,7 @@
           options = _.extend({
             collection: this
           }, options);
-          if (attrs instanceof this.model) {
+          if (attrs instanceof this.model || attrs instanceof BaseCollection) {
             model = attrs;
             model.collection = this;
           } else {
