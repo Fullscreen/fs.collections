@@ -84,7 +84,7 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
           @models.splice(insertAt, 0, model)
           insertAt++
         else if options.merge
-          colModel.set(model.attributes)
+          colModel.set(model.attributes, options)
 
       @sort() if options.sort
 
@@ -111,7 +111,7 @@ app.factory 'BaseCollection', ['$http', 'BaseModel', ($http, BaseModel) ->
 
     _prepareModel: (attrs, options) ->
       options = _.extend({collection: @}, options)
-      if attrs instanceof @model
+      if attrs instanceof @model or attrs instanceof BaseCollection
         model = attrs
         model.collection = @
       else
