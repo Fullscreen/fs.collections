@@ -4,3 +4,4 @@ bower_components
 *.swp
 *.orig
 npm-debug.log
+coverage

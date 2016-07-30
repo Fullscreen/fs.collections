@@ -1,9 +1,10 @@
-var existingConfig = require("./karma.conf.js")
+var existingConfig = require('./karma.conf.js')
 
-module.exports = function(config) {
+module.exports = function (config) {
   existingConfig(config)
   config.set({
     autoWatch: true,
-    singleRun: false
+    singleRun: false,
+    browsers: ['Chrome']
   })
 }
