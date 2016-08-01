@@ -1,24 +1,29 @@
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
-    frameworks: ['jasmine'],
+    frameworks: ['browserify', 'jasmine'],
     files: [
-      "bower_components/angular/angular.js",
-      "bower_components/angular-mocks/angular-mocks.js",
-      "bower_components/underscore/underscore.js",
-      "src/index.coffee",
-      "src/collection.coffee",
-      "src/model.coffee",
-      "tests/**/*.coffee"
+      'src/index.js',
+      'tests/**/*.js',
+      'node_modules/angular-mocks/angular-mocks.js'
     ],
     preprocessors: {
-      "src/*.coffee": "coffee",
-      "tests/**/*.coffee": "coffee"
+      'src/*.js': 'browserify',
+      'tests/**/*.js': 'browserify'
+    },
+    browserify: {
+      debug: true,
+      transform: [
+        ['babelify', {presets: ['es2015']}],
+        'browserify-ngannotate',
+        // disable this line to get better debugging
+        ['browserify-istanbul', {instrumenterConfig: {embedSource: true}, ignore: ['**/vendor/**']}]
+      ]
     },
     port: 8080,
     logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: ['PhantomJS'],
-    reporters: ['progress'],
+    reporters: ['progress', 'coverage'],
     singleRun: true
-  });
-};
+  })
+}
