@@ -1,7 +1,7 @@
 /* eslint-disable no-return-assign */
-import _ from 'underscore'
+/* global _ */
 
-export default function BaseCollection ($http, BaseModel) {
+export default ['$http', 'BaseModel', function ($http, BaseModel) {
   class BaseCollection {
     constructor (models, opts) {
       this.model = BaseModel
@@ -206,4 +206,4 @@ export default function BaseCollection ($http, BaseModel) {
   )
 
   return BaseCollection
-}
+}]

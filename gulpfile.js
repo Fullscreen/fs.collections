@@ -8,6 +8,7 @@ var sourcemaps = require('gulp-sourcemaps')
 var babelify = require('babelify')
 var concat = require('gulp-concat')
 var ngannotate = require('browserify-ngannotate')
+var derequire = require('gulp-derequire')
 
 var files = [
   'src/index.js'
@@ -17,15 +18,15 @@ gulp.task('build', function () {
   // set up the browserify instance on a task basis
   var b = browserify({
     entries: files,
+    basedir: __dirname,
     debug: true,
     // defining transforms here will avoid crashing your stream
     transform: [[babelify, {presets: ['es2015']}], ngannotate]
   })
-  .external('angular')
-  .external('underscore')
 
   return b.bundle()
     .pipe(source('index.js'))
+    .pipe(derequire())
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
   // Add transformation tasks to the pipeline here.
@@ -43,11 +44,10 @@ gulp.task('minified', function () {
     // defining transforms here will avoid crashing your stream
     transform: [[babelify, {presets: ['es2015']}], ngannotate]
   })
-  .external('angular')
-  .external('underscore')
 
   return b.bundle()
     .pipe(source('index.min.js'))
+    .pipe(derequire())
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
   // Add transformation tasks to the pipeline here.
