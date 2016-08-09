@@ -1,6 +1,6 @@
 /* eslint-disable no-return-assign */
-import _ from 'underscore'
-export default function BaseModel ($http, $rootScope) {
+/* global _ */
+export default ['$http', '$rootScope', function ($http, $rootScope) {
   class BaseModel {
     parse (res) {
       if (res.status && res.headers) {
@@ -171,4 +171,4 @@ export default function BaseModel ($http, $rootScope) {
   )
 
   return BaseModel
-}
+}]

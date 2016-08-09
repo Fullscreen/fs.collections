@@ -1,24 +1,18 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* eslint-disable no-return-assign */
-
-
-exports.default = BaseCollection;
-
-var _underscore = require('underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function BaseCollection($http, BaseModel) {
+/* eslint-disable no-return-assign */
+/* global _ */
+
+exports.default = ['$http', 'BaseModel', function ($http, BaseModel) {
   var BaseCollection = function () {
     function BaseCollection(models, opts) {
       _classCallCheck(this, BaseCollection);
@@ -68,15 +62,15 @@ function BaseCollection($http, BaseModel) {
           merge: true,
           parse: true,
           method: 'GET',
-          url: (0, _underscore2.default)(this).result('url')
+          url: _(this).result('url')
         };
 
-        options = _underscore2.default.extend(defaults, options);
+        options = _.extend(defaults, options);
         if (options.params) {
-          options.params = _underscore2.default.extend({}, options.params);
+          options.params = _.extend({}, options.params);
         }
         if (options.data) {
-          options.data = _underscore2.default.extend({}, options.data);
+          options.data = _.extend({}, options.data);
         }
 
         this.currentlyFetching = true;
@@ -104,20 +98,20 @@ function BaseCollection($http, BaseModel) {
     }, {
       key: 'get',
       value: function get(id) {
-        return (0, _underscore2.default)(this.models).findWhere({ id: id });
+        return _(this.models).findWhere({ id: id });
       }
     }, {
       key: 'remove',
       value: function remove(models) {
         var _this2 = this;
 
-        var isSingular = !(0, _underscore2.default)(models).isArray();
+        var isSingular = !_(models).isArray();
         if (isSingular) {
           models = [models];
         }
         var removed = [];
 
-        (0, _underscore2.default)(models).forEach(function (model) {
+        _(models).forEach(function (model) {
           var index = _this2.indexOf(model);
           if (index === -1) {
             return;
@@ -138,7 +132,7 @@ function BaseCollection($http, BaseModel) {
       value: function add(models, options) {
         var _this3 = this;
 
-        options = _underscore2.default.extend({ sort: true }, options);
+        options = _.extend({ sort: true }, options);
 
         if (options.parse) {
           models = this.parse(models);
@@ -147,7 +141,7 @@ function BaseCollection($http, BaseModel) {
           return;
         }
 
-        var isSingular = !(0, _underscore2.default)(models).isArray();
+        var isSingular = !_(models).isArray();
         models = isSingular ? [models] : models.slice();
         var added = [];
         var insertAt = typeof options.at === 'undefined' ? this.length : options.at;
@@ -189,7 +183,7 @@ function BaseCollection($http, BaseModel) {
     }, {
       key: 'toJSON',
       value: function toJSON() {
-        return _underscore2.default.map(this.models, function (model) {
+        return _.map(this.models, function (model) {
           return model.toJSON();
         });
       }
@@ -211,7 +205,7 @@ function BaseCollection($http, BaseModel) {
       key: '_prepareModel',
       value: function _prepareModel(attrs, options) {
         var model = void 0;
-        options = _underscore2.default.extend({ collection: this }, options);
+        options = _.extend({ collection: this }, options);
         if (attrs instanceof this.model || attrs instanceof BaseCollection) {
           model = attrs;
           model.collection = this;
@@ -225,7 +219,7 @@ function BaseCollection($http, BaseModel) {
     }, {
       key: 'pluck',
       value: function pluck(attr) {
-        return _underscore2.default.invoke(this.models, 'get', attr);
+        return _.invoke(this.models, 'get', attr);
       }
     }, {
       key: 'where',
@@ -266,14 +260,14 @@ function BaseCollection($http, BaseModel) {
   var methods = ['forEach', 'each', 'map', 'collect', 'reduce', 'foldl', 'inject', 'reduceRight', 'foldr', 'find', 'detect', 'filter', 'select', 'reject', 'every', 'all', 'some', 'any', 'include', 'contains', 'invoke', 'max', 'min', 'toArray', 'size', 'first', 'head', 'take', 'initial', 'rest', 'tail', 'drop', 'last', 'without', 'difference', 'indexOf', 'shuffle', 'lastIndexOf', 'isEmpty', 'chain'];
 
   // Mix in each Underscore method as a proxy to `Collection#models`.
-  _underscore2.default.each(methods, function (method) {
+  _.each(methods, function (method) {
     return BaseCollection.prototype[method] = function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
       args.unshift(this.models);
-      return _underscore2.default[method].apply(_underscore2.default, args);
+      return _[method].apply(_, args);
     };
   });
 
@@ -281,38 +275,35 @@ function BaseCollection($http, BaseModel) {
   var attributeMethods = ['groupBy', 'countBy', 'sortBy'];
 
   // Use attributes instead of properties.
-  _underscore2.default.each(attributeMethods, function (method) {
+  _.each(attributeMethods, function (method) {
     return BaseCollection.prototype[method] = function (value, context) {
-      var iterator = _underscore2.default.isFunction(value) ? value : function (model) {
+      var iterator = _.isFunction(value) ? value : function (model) {
         return model.get(value);
       };
-      return _underscore2.default[method](this.models, iterator, context);
+      return _[method](this.models, iterator, context);
     };
   });
 
   return BaseCollection;
-}
+}];
 
-},{"underscore":"underscore"}],2:[function(require,module,exports){
+},{}],2:[function(_dereq_,module,exports){
 'use strict';
 
-var _collection = require('./collection.js');
+var _collection = _dereq_('./collection.js');
 
 var _collection2 = _interopRequireDefault(_collection);
 
-var _model = require('./model.js');
+var _model = _dereq_('./model.js');
 
 var _model2 = _interopRequireDefault(_model);
 
-var _angular = require('angular');
-
-var _angular2 = _interopRequireDefault(_angular);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_angular2.default.module('fs.collections', []).factory('BaseCollection', _collection2.default).factory('BaseModel', _model2.default);
+/* global angular */
+angular.module('fs.collections', []).factory('BaseCollection', _collection2.default).factory('BaseModel', _model2.default);
 
-},{"./collection.js":1,"./model.js":3,"angular":"angular"}],3:[function(require,module,exports){
+},{"./collection.js":1,"./model.js":3}],3:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -321,20 +312,13 @@ Object.defineProperty(exports, "__esModule", {
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* eslint-disable no-return-assign */
-
-
-exports.default = BaseModel;
-
-var _underscore = require('underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function BaseModel($http, $rootScope) {
+/* eslint-disable no-return-assign */
+/* global _ */
+exports.default = ['$http', '$rootScope', function ($http, $rootScope) {
   var BaseModel = function () {
     _createClass(BaseModel, [{
       key: 'parse',
@@ -348,7 +332,7 @@ function BaseModel($http, $rootScope) {
     }, {
       key: '_hasIdAttribute',
       value: function _hasIdAttribute(attrs) {
-        return (0, _underscore2.default)(Object.keys(attrs)).contains(this.idAttribute);
+        return _(Object.keys(attrs)).contains(this.idAttribute);
       }
     }]);
 
@@ -368,7 +352,7 @@ function BaseModel($http, $rootScope) {
       this._eventBus = $rootScope.$new();
       this._eventBus.destuctors = {};
       this._eventBus.$on('$destroy', function () {
-        return (0, _underscore2.default)(_this._eventBus.destuctors).each(function (callbacks, event) {
+        return _(_this._eventBus.destuctors).each(function (callbacks, event) {
           return callbacks.forEach(function (obj) {
             return obj.unwatch();
           });
@@ -389,8 +373,8 @@ function BaseModel($http, $rootScope) {
       }
 
       this.attributes = {};
-      attrs = _underscore2.default.extend({}, attrs);
-      attrs = _underscore2.default.defaults(attrs, _underscore2.default.result(this, 'defaults'));
+      attrs = _.extend({}, attrs);
+      attrs = _.defaults(attrs, _.result(this, 'defaults'));
       this.set(attrs);
     }
 
@@ -494,7 +478,7 @@ function BaseModel($http, $rootScope) {
           this.id = attrs[this.idAttribute];
         }
 
-        (0, _underscore2.default)(attrs).each(function (aVal, aKey) {
+        _(attrs).each(function (aVal, aKey) {
           if (_this3.attributes[aKey] !== aVal) {
             changed[aKey] = aVal;
           }
@@ -502,7 +486,7 @@ function BaseModel($http, $rootScope) {
         });
 
         this.trigger('change', this, changed);
-        (0, _underscore2.default)(changed).each(function (val, key) {
+        _(changed).each(function (val, key) {
           return _this3.trigger('change:' + key, _this3, val);
         });
 
@@ -520,7 +504,7 @@ function BaseModel($http, $rootScope) {
     }, {
       key: 'url',
       value: function url() {
-        var base = _underscore2.default.result(this, 'urlRoot') || _underscore2.default.result(this.collection, 'url');
+        var base = _.result(this, 'urlRoot') || _.result(this.collection, 'url');
         if (this.isNew()) {
           return base;
         } else {
@@ -531,34 +515,34 @@ function BaseModel($http, $rootScope) {
     }, {
       key: 'toJSON',
       value: function toJSON() {
-        return _underscore2.default.clone(this.attributes);
+        return _.clone(this.attributes);
       }
     }, {
       key: 'fetch',
       value: function fetch() {
         var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-        var opts = _underscore2.default.extend({}, options);
+        var opts = _.extend({}, options);
 
-        (0, _underscore2.default)(opts).defaults({
+        _(opts).defaults({
           method: 'GET',
-          url: _underscore2.default.result(this, 'url')
+          url: _.result(this, 'url')
         });
-        return $http(opts).then((0, _underscore2.default)(this.parse).bind(this)).then((0, _underscore2.default)(this.set).bind(this));
+        return $http(opts).then(_(this.parse).bind(this)).then(_(this.set).bind(this));
       }
     }, {
       key: 'save',
       value: function save() {
         var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-        var opts = _underscore2.default.extend({}, options);
+        var opts = _.extend({}, options);
 
-        (0, _underscore2.default)(opts).defaults({
+        _(opts).defaults({
           method: this.isNew() ? 'POST' : 'PUT',
-          url: _underscore2.default.result(this, 'url'),
+          url: _.result(this, 'url'),
           data: this.toJSON()
         });
-        return $http(opts).then((0, _underscore2.default)(this.parse).bind(this)).then((0, _underscore2.default)(this.set).bind(this));
+        return $http(opts).then(_(this.parse).bind(this)).then(_(this.set).bind(this));
       }
     }, {
       key: 'destroy',
@@ -578,11 +562,11 @@ function BaseModel($http, $rootScope) {
         if (this.isNew()) {
           return destroy();
         } else {
-          (0, _underscore2.default)(opts).defaults({
+          _(opts).defaults({
             method: 'DELETE',
             url: this.url('delete')
           });
-          return $http(opts).then((0, _underscore2.default)(this.parse).bind(this)).then(destroy);
+          return $http(opts).then(_(this.parse).bind(this)).then(destroy);
         }
       }
     }]);
@@ -597,21 +581,21 @@ function BaseModel($http, $rootScope) {
   var modelMethods = ['keys', 'values', 'pairs', 'invert', 'pick', 'omit'];
 
   // Mix in each Underscore method as a proxy to `Model#attributes`.
-  _underscore2.default.each(modelMethods, function (method) {
+  _.each(modelMethods, function (method) {
     return BaseModel.prototype[method] = function () {
       for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
         args[_key4] = arguments[_key4];
       }
 
       args.unshift(this.attributes);
-      return _underscore2.default[method].apply(_underscore2.default, args);
+      return _[method].apply(_, args);
     };
   });
 
   return BaseModel;
-}
+}];
 
-},{"underscore":"underscore"}]},{},[2])
+},{}]},{},[2])
 
 
 //# sourceMappingURL=index.js.map
