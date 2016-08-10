@@ -17,7 +17,6 @@ exports.default = ['$http', 'BaseModel', function ($http, BaseModel) {
     function BaseCollection(models, opts) {
       _classCallCheck(this, BaseCollection);
 
-      this.model = BaseModel;
       this.currentlyFetching = false;
       this.opts = opts;
 
@@ -251,12 +250,12 @@ exports.default = ['$http', 'BaseModel', function ($http, BaseModel) {
     return BaseCollection;
   }();
 
+  BaseCollection.prototype.model = BaseModel;
+
   // From the Backbone source: https://github.com/jashkenas/backbone/blob/master/backbone.js#L942
   // Underscore methods that we want to implement on the Collection.
   // 90% of the core usefulness of Backbone Collections is actually implemented
   // right here:
-
-
   var methods = ['forEach', 'each', 'map', 'collect', 'reduce', 'foldl', 'inject', 'reduceRight', 'foldr', 'find', 'detect', 'filter', 'select', 'reject', 'every', 'all', 'some', 'any', 'include', 'contains', 'invoke', 'max', 'min', 'toArray', 'size', 'first', 'head', 'take', 'initial', 'rest', 'tail', 'drop', 'last', 'without', 'difference', 'indexOf', 'shuffle', 'lastIndexOf', 'isEmpty', 'chain'];
 
   // Mix in each Underscore method as a proxy to `Collection#models`.

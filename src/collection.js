@@ -4,7 +4,6 @@
 export default ['$http', 'BaseModel', function ($http, BaseModel) {
   class BaseCollection {
     constructor (models, opts) {
-      this.model = BaseModel
       this.currentlyFetching = false
       this.opts = opts
 
@@ -172,6 +171,8 @@ export default ['$http', 'BaseModel', function ($http, BaseModel) {
       return this.where(attrs, true)
     }
   }
+
+  BaseCollection.prototype.model = BaseModel
 
   // From the Backbone source: https://github.com/jashkenas/backbone/blob/master/backbone.js#L942
   // Underscore methods that we want to implement on the Collection.
