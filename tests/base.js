@@ -57,8 +57,16 @@ describe('The dependable BaseCollection', function () {
     expect(instance.length).toBe(1)
     expect(instance.models[0] instanceof FakeModel).toBe(true)
     return expect(instance.models[0].spy).toHaveBeenCalledWith({id: 1})
-  }
-  )
+  })
+
+  it('should initialize new models using its extended "model" attribute', function () {
+    class ExtendedCollection extends Collection {}
+    ExtendedCollection.prototype.model = FakeModel
+    let instance = new ExtendedCollection([{id: 1}])
+    expect(instance.length).toBe(1)
+    expect(instance.models[0] instanceof FakeModel).toBe(true)
+    return expect(instance.models[0].spy).toHaveBeenCalledWith({id: 1})
+  })
 
   it('should be able to handle being passed both objects and models', function () {
     let instance = new Collection([{id: 1}, {id: 2}], {model: FakeModel})
